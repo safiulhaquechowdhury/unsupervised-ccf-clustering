@@ -1,0 +1,22 @@
+Fold 1: Sil=0.2477, CH=66336.83, DB=1.5719, WCSS≈12.63, Gap=nan
+Fold 2: Sil=0.2477, CH=66571.60, DB=1.5699, WCSS≈12.58, Gap=nan
+Fold 3: Sil=0.2475, CH=66395.70, DB=1.5715, WCSS≈12.59, Gap=nan
+Fold 4: Sil=0.2476, CH=66730.65, DB=1.5687, WCSS≈12.54, Gap=nan
+Fold 5: Sil=0.2477, CH=66432.22, DB=1.5717, WCSS≈12.61, Gap=nan
+Fold 6: Sil=0.2477, CH=66704.92, DB=1.5698, WCSS≈12.54, Gap=nan
+Fold 7: Sil=0.2479, CH=66513.04, DB=1.5706, WCSS≈12.61, Gap=nan
+Fold 8: Sil=0.2475, CH=66427.32, DB=1.5709, WCSS≈12.60, Gap=nan
+Fold 9: Sil=0.5578, CH=29507.07, DB=0.7287, WCSS≈14.65, Gap=nan
+Fold 10: Sil=0.2479, CH=66765.92, DB=1.5686, WCSS≈12.54, Gap=nan
+--- 10-Fold Average Metrics ---
+Average Silhouette Score: 0.2787
+Average Calinski-Harabasz Index: 62838.53
+Average Davies-Bouldin Index: 1.4862
+Average WCSS: 12.79
+Average Gap Statistic: nan
+--- Final GMM Model on Full Data ---
+Silhouette Score: 0.2477
+Calinski-Harabasz Index: 73964.0476
+Davies-Bouldin Index: 1.5701
+BIC (Bayesian Information Criterion): 1355964.6523 (Lower is better)
+AIC (Akaike Information Criterion): 1355021.8457 (Lower is better)
