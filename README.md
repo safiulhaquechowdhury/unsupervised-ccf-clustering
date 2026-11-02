@@ -59,7 +59,7 @@ Download **CreditCard-Fraud-Detection** from Kaggle
 ## Installation
 
 ```bash
-git clone https://github.com/<account>/unsupervised-ccf-clustering.git
+git clone https://github.com/safiulhaquechowdhury/unsupervised-ccf-clustering.git
 cd unsupervised-ccf-clustering
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
