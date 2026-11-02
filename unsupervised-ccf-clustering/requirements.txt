@@ -1,8 +1,0 @@
-# Versions of the original Google Colab session (Section 3.1.6 of the paper)
-numpy==1.26.4
-pandas==2.2.2
-scikit-learn==1.6.1
-fuzzy-c-means==1.7.2
-matplotlib>=3.8
-seaborn>=0.13
-jupyter
