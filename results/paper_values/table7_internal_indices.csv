@@ -1,5 +1,0 @@
-model,feature_space,SS,CHI,DBI
-KMC,unscaled,0.6168,748188.50,0.5112
-AHC,unscaled,0.5769,581173.71,0.5098
-GMMC,standardized,0.2787,62838.53,1.4862
-FCMC,unscaled,0.6168,748177.22,0.5111
