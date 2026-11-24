@@ -1,12 +1,18 @@
-"""Data loading, merging, and encoding (Sections 3.2 and 3.3 of the paper)."""
+"""Data loading, merging, encoding, and feature matrices (Sections 3.2 and 3.3)."""
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
-FEATURES = ['credit_card', 'State', 'City', 'zipcode', 'credit_card_limit',
+# Feature matrix of the revised experiments: the credit_card key is excluded,
+# State is encoded from the state names, and every column is standardized.
+FEATURES = ['State', 'City', 'zipcode', 'credit_card_limit',
             'transaction_dollar_amount', 'Long', 'Lat']
+
+# Columns of the previous submission (kept only to document the earlier error).
+FEATURES_PREVIOUS = ['credit_card', 'State', 'City', 'zipcode', 'credit_card_limit',
+                     'transaction_dollar_amount', 'Long', 'Lat']
 
 
 def load_merged(data_dir='data'):
@@ -18,13 +24,15 @@ def load_merged(data_dir='data'):
 
 
 def encode(df):
-    """Label-encode city and state exactly as in the reported experiments.
+    """Label-encode City from the city names and State from the state names."""
+    df = df.copy()
+    df['City'] = LabelEncoder().fit_transform(df['city'])
+    df['State'] = LabelEncoder().fit_transform(df['state'])
+    return df
 
-    The State column is encoded from the *city* names. This coding error is
-    disclosed in Section 3.3 of the paper and is kept so that the published
-    tables can be reproduced. Pass the result of ``encode_corrected`` instead
-    to use the state names.
-    """
+
+def encode_previous(df):
+    """Encoding of the previous submission, in which State repeated the city codes."""
     df = df.copy()
     le = LabelEncoder()
     df['City'] = le.fit_transform(df['city'])
@@ -32,16 +40,24 @@ def encode(df):
     return df
 
 
-def encode_corrected(df):
-    """Encode State from the state names (corrected variant, not used in the paper)."""
-    df = df.copy()
-    df['City'] = LabelEncoder().fit_transform(df['city'])
-    df['State'] = LabelEncoder().fit_transform(df['state'])
-    return df
+def feature_matrix(df, features=FEATURES):
+    """Standardized (z-score) matrix used by all four algorithms."""
+    X = df[features].to_numpy(dtype=np.float64)
+    return StandardScaler().fit_transform(X)
 
 
-def feature_matrices(df):
-    """Return the unscaled matrix (KMC, AHC, FCMC) and the standardized matrix (GMMC)."""
-    X = df[FEATURES].to_numpy(dtype=np.float64)
-    X_std = StandardScaler().fit_transform(X)
-    return X, X_std
+def load_ulb(path):
+    """ULB European credit card benchmark (284,807 transactions, 492 frauds).
+
+    Returns the 29 features V1..V28 and log(1 + Amount), and the fraud label.
+    Time is excluded because it only counts seconds from the first transaction.
+    """
+    raw = pd.read_csv(path, header=None)
+    if isinstance(raw.iloc[0, 0], str):          # file with a header row
+        raw = pd.read_csv(path)
+        raw.columns = range(raw.shape[1])
+    X = raw.iloc[:, 1:29].to_numpy(dtype=np.float64)
+    amount = np.log1p(raw.iloc[:, 29].to_numpy(dtype=np.float64))
+    X = np.column_stack([X, amount])
+    y = raw.iloc[:, 30].to_numpy(dtype=int)
+    return X, y

@@ -1,8 +1,13 @@
-# Versions of the original Google Colab session (Section 3.1.6 of the paper)
-numpy==1.26.4
-pandas==2.2.2
-scikit-learn==1.6.1
-fuzzy-c-means==1.7.2
+# Versions of the reported runs (revision of November 2026)
+numpy==2.5.3
+pandas==3.0.5
+scikit-learn==1.9.1
+scipy==1.18.1
 matplotlib>=3.8
 seaborn>=0.13
-jupyter
+# fuzzy-c-means 1.7.2 declares numpy<2 but runs with NumPy 2; install it with:
+#   pip install fuzzy-c-means==1.7.2 --no-deps pydantic typer tabulate tqdm
+fuzzy-c-means==1.7.2
+nbformat
+nbclient
+ipykernel

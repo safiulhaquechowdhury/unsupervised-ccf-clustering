@@ -6,111 +6,81 @@ Code for the article:
 > **"A Comprehensive Evaluation of Unsupervised Clustering Algorithms for Credit Card Fraud Detection in Large-Scale Transaction Datasets,"**
 > *Complexity* (Wiley), 2026.
 
-The study compares four clustering families on a merged cardholder–transaction dataset that has **no fraud labels**:
+The study compares four clustering families (KMC, AHC, GMMC, FCMC) for fraud-risk screening of unlabeled
+card transactions and validates the resulting risk scores on a labeled benchmark.
 
-| Abbreviation | Algorithm | Family |
-|---|---|---|
-| KMC | K-Means Clustering | partition-based |
-| AHC | Agglomerative Hierarchical Clustering (mini-batch k-means + Ward) | hierarchical |
-| GMMC | Gaussian Mixture Model Clustering | probabilistic mixture |
-| FCMC | Fuzzy C-Means Clustering | fuzzy membership |
+## Revision of November 2026 (current version)
 
-Cluster quality is assessed with the Silhouette Score (SS), Calinski–Harabasz Index (CHI), and Davies–Bouldin Index (DBI) under a 10-fold resampling protocol, and fraud-risk candidates are scored with a per-cluster Tukey fence on the distance to the centroid.
+Following the second reviewer, all experiments were repeated on a corrected feature matrix:
 
----
+* the `credit_card` key is used only to merge the two files and is **not** a clustering feature;
+* `State` is label-encoded from the **state** names (it repeated the city codes in the earlier version);
+* all seven features (`State`, `City`, `zipcode`, `credit_card_limit`, `transaction_dollar_amount`, `Long`, `Lat`)
+  are **standardized**, and the same matrix is used by all four algorithms.
+
+New analyses: K = 2 to 6 for every algorithm, hyperparameter, seed and feature-set sensitivity, fraud-risk
+candidates on the corrected matrix, Friedman and Holm-corrected Wilcoxon tests, and validation on the labeled
+ULB European credit card benchmark (precision, recall, F1, ROC-AUC, PR-AUC).
+
+## Earlier version
+
+The code, notebooks and logs of the earlier submission (superseded) remain available in the commit history,
+at commit `c91f834`.
 
 ## Repository structure
 
 ```
-unsupervised-ccf-clustering/
-├── README.md
-├── LICENSE                         MIT licence
-├── CITATION.cff                    citation metadata (GitHub "Cite this repository")
-├── requirements.txt                package versions of the original Colab session
-├── data/
-│   └── README.md                   how to download the Kaggle files (not redistributed)
-├── notebooks/
-│   ├── 01_original_runs_with_outputs.ipynb   original Colab cells and outputs behind Tables 7 and 9
-│   └── 02_exploratory_figures.ipynb          plotting code for Figures 5, 6, and 7
-├── src/ccf_clustering/
-│   ├── data.py                     loading, merging, label encoding, feature matrices
-│   ├── models.py                   KMC, AHC, GMMC, FCMC with the settings of Table 2
-│   ├── evaluation.py               10-fold protocol, SS/CHI/DBI, mean-rank rule
-│   └── scoring.py                  distance scores and per-cluster Tukey fence
-├── scripts/
-│   ├── run_table7_comparison.py    Table 7 (four algorithms) and Table 9 (KMC per fold)
-│   ├── run_table8_k_selection.py   Table 8 (KMC, K = 2 to 5)
-│   └── run_anomaly_scoring.py      Section 3.4.5 (fraud-risk candidates)
-└── results/
-    ├── paper_values/               Tables 7, 8, and 9 as published (CSV)
-    └── original_run_logs/          per-fold console output of the original runs
+src/ccf_clustering/        data.py, models.py, evaluation.py, scoring.py (Listings A1 to A4)
+scripts/
+  run_round4_kaggle.py     Tables 7 to 11 (stages: main k hyper seeds features scoring)
+  run_round4_ulb.py        Tables 12 and 13 (labeled benchmark); arguments = values of K
+  make_round4_figures_eda.py   Figures 5 to 7
+  make_round4_figure8.py       Figure 8 (a) to (d)
+  check_ss_subsample.py        exact vs subsampled Silhouette Score (Section 3.1.6)
+notebooks/
+  03_round4_revision_analysis.ipynb   executed notebook: all table values and statistical tests
+  build_03_notebook.py                builds and executes the notebook above
+results/round4/            per-fold CSV files, summary_round4.json, figures/
+                           (scores_all_transactions.csv.gz, 16 MB, is written by run_round4_kaggle.py and not stored here)
+logs/                      console output of every run
 ```
-
-The code snippets in **Appendix A** of the paper correspond to `src/ccf_clustering/` as follows: Listing A1 → `data.py`, Listing A2 → `evaluation.py`, Listing A3 → `models.py`, Listing A4 → `scoring.py`.
-
----
 
 ## Data
 
-Download **CreditCard-Fraud-Detection** from Kaggle
-(<https://www.kaggle.com/datasets/iabhishekofficial/creditcard-fraud-detection>) and place
-`cc_info.csv` and `transactions.csv.zip` in `data/`. See [`data/README.md`](data/README.md).
+* Kaggle **CreditCard-Fraud-Detection** (Sharma, 2023): <https://www.kaggle.com/datasets/iabhishekofficial/creditcard-fraud-detection>,
+  files `cc_info.csv` and `transactions.csv.zip` in `data/` (no fraud labels).
+* ULB **Credit Card Fraud Detection** (Dal Pozzolo et al., 2015): <https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud>,
+  file `creditcard.csv` in `data/` (284,807 transactions, 492 frauds; with or without header row).
 
-## Installation
-
-```bash
-git clone https://github.com/safiulhaquechowdhury/unsupervised-ccf-clustering.git
-cd unsupervised-ccf-clustering
-python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-The original experiments ran on Python 3.11 (Google Colab, CPU only).
+The data files are not redistributed.
 
 ## Reproducing the results
 
-| Paper item | Command | Output (in `results/reproduced/`) |
-|---|---|---|
-| Table 7 and Table 9 | `python scripts/run_table7_comparison.py` | `table7_internal_indices.csv`, `kmc_10fold.csv`, … |
-| Table 8 | `python scripts/run_table8_k_selection.py` | `table8_kmc_k_selection.csv`, `kmc_k{K}_10fold.csv` |
-| Section 3.4.5 | `python scripts/run_anomaly_scoring.py` | `kmc_anomaly_summary.json`, `kmc_anomaly_scores.csv.gz`, `kmc_fraud_risk_candidates.csv` |
-| Figures 5–7 | `notebooks/02_exploratory_figures.ipynb` | plots |
-
-**Run time.** The exact Silhouette Score on about 265,000 transactions per training fold takes roughly 17 minutes per fold on a 2-core CPU. For a quick check, add `--ss-sample 20000`; CHI and DBI are then still exact, and SS is estimated from a random subsample.
-
 ```bash
-python scripts/run_table7_comparison.py --ss-sample 20000 --models KMC GMMC
+pip install -r requirements.txt
+python scripts/run_round4_kaggle.py main k hyper seeds features scoring   # about 1 h on 2 CPU cores
+python scripts/run_round4_ulb.py 2          # Tables 12 and 13
+python scripts/run_round4_ulb.py 3 4 5 6    # K sweep on the benchmark
+python scripts/make_round4_figures_eda.py
+python scripts/make_round4_figure8.py
+python notebooks/build_03_notebook.py       # aggregates everything into the executed notebook
 ```
 
-**Expected agreement with the paper.** CHI and DBI of KMC, GMMC, and FCMC reproduce the published fold values exactly (compare with `results/paper_values/` and `results/original_run_logs/`). The AHC values depend on the mini-batch k-means stage and can differ between scikit-learn versions, as reported in Section 3.1.6. With `--ss-sample`, SS differs slightly from the published exact values.
+SS is computed on a fixed random subsample of 20,000 transactions per training fold (CHI and DBI are exact);
+`scripts/check_ss_subsample.py` compares it with the exact value. Software of the reported runs: Python 3.13,
+NumPy 2.5.3, pandas 3.0.5, scikit-learn 1.9.1, SciPy 1.18.1, fuzzy-c-means 1.7.2, CPU only.
 
-## Settings (Table 2)
+## Notes for interpretation
 
-| Algorithm | Feature space | Main settings |
-|---|---|---|
-| KMC | unscaled | K = 2, `init='k-means++'`, `n_init=10`, `tol=1e-4`, `max_iter=300` |
-| AHC | unscaled | 50 mini-batch k-means centroids (batch size 1,000), Ward linkage, K = 2 |
-| GMMC | standardized (z-scores) | 2 components, full covariance, k-means initialization, `n_init=1`, `tol=1e-3`, `max_iter=100`, `reg_covar=1e-6` |
-| FCMC | unscaled | K = 2, m = 2.0, `error=1e-5`, `max_iter=150` |
+* SS, CHI and DBI measure cluster geometry, not fraud-detection accuracy; detection is measured on the labeled benchmark,
+  whose labels are used only for evaluation.
+* Flagged transactions are leads for manual review, not confirmed fraud.
 
-All models use `random_state=42`; the 10-fold split is `KFold(n_splits=10, shuffle=True, random_state=42)`.
+## Citation and licence
 
-## Important notes for interpretation
-
-- **No fraud labels.** SS, CHI, and DBI measure cluster geometry, not fraud-detection accuracy. Flagged transactions are leads for manual review, not confirmed fraud.
-- **Feature spaces differ.** KMC, AHC, and FCMC were run on unscaled features, in which the `credit_card` identifier (about 10¹⁵ to 10¹⁶) dominates the Euclidean distance; GMMC was run on standardized features. The GMMC indices are therefore not directly comparable with the other three (Section 3.3).
-- **State encoding.** In the reported experiments the `State` column was encoded from the city names and duplicates the city codes (Section 3.3). `data.encode()` keeps this behaviour so that the published tables can be reproduced; `data.encode_corrected()` encodes the state names instead.
-- **Held-out folds are not used.** The 10-fold protocol refits on the nine training folds and scores those same transactions, so it measures stability, not generalization.
-
-## Citation
-
-If you use this code, please cite the article above (see also [`CITATION.cff`](CITATION.cff)).
-
-## Licence
-
-Code: MIT ([`LICENSE`](LICENSE)). The Kaggle dataset is subject to its own terms on Kaggle.
+See [`CITATION.cff`](CITATION.cff). Code: MIT ([`LICENSE`](LICENSE)). The datasets are subject to their own terms.
 
 ## Contact
 
-Corresponding author: Safiul Haque Chowdhury, Department of Computer Science and Engineering, Jahangirnagar University, Savar, Dhaka, Bangladesh (ohinhaque0852@gmail.com).
+Corresponding author: Safiul Haque Chowdhury, Department of Computer Science and Engineering, Jahangirnagar University,
+Savar, Dhaka, Bangladesh (ohinhaque0852@gmail.com).

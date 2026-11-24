@@ -1,0 +1,9 @@
+{
+ "KMC": {
+  "exact": 0.39758608956204156,
+  "approx_seed42": 0.3989141177359986,
+  "approx_mean_10_subsamples": 0.3973640995372648,
+  "approx_sd_10_subsamples": 0.0018710806421067747,
+  "sec_exact": 754.58
+ }
+}

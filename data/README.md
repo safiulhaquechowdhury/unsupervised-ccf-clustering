@@ -12,5 +12,10 @@ data/
 ```
 
 `transactions.csv.zip` is read directly by pandas; there is no need to unzip it.
-The dataset contains **no fraud labels**, so all results are internal cluster
-validation indices, not detection accuracy.
+The Kaggle dataset contains **no fraud labels**; detection is evaluated on the labeled benchmark below.
+
+## Labeled benchmark (revision of November 2026)
+
+`creditcard.csv` from the ULB Credit Card Fraud Detection dataset (Dal Pozzolo et al., 2015;
+<https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud>), 284,807 transactions with 492 frauds.
+Place it here unchanged; it is used only by `scripts/run_round4_ulb.py`, and its labels only for evaluation.
