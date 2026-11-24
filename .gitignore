@@ -10,3 +10,5 @@ __pycache__/
 .venv/
 venv/
 .DS_Store
+# Large per-transaction score file written by run_round4_kaggle.py
+results/round4/scores_all_transactions.csv.gz
